@@ -39,6 +39,11 @@ class TinyMCEHelper extends AppHelper {
  */
 	protected $_defaults = array();
 
+	protected $_defaultSettings = array(
+		'jQuery' => false,
+	);
+	protected $_settings = array();
+
 /**
  * Constructor
  *
@@ -46,11 +51,13 @@ class TinyMCEHelper extends AppHelper {
  * @param array $settings Configuration settings for the helper.
  */
 	public function __construct(View $View, $settings = array()) {
-		parent::__construct($View, $settings);
-		$configs = Configure::read('TinyMCE.configs');
-		if (!empty($configs) && is_array($configs)) {
-			$this->configs = $configs;
+		$config = (array) Configure::read('TinyMCE');
+		if (!empty($config['configs']) && is_array($config['configs'])) {
+			unset($config['configs']);
 		}
+		parent::__construct($View, array_merge($config, $settings));
+		$this->_settings = array_merge($this->_defaultSettings, $config, $settings);
+
 	}
 
 /**
@@ -91,5 +98,8 @@ class TinyMCEHelper extends AppHelper {
 			$this->_defaults = $appOptions;
 		}
 		$this->Html->script('/TinyMCE/js/tiny_mce/tiny_mce.js', array('inline' => false));
+		if ($this->_settings['jQuery']) {
+			$this->Html->script('/TinyMCE/js/tiny_mce/jquery.tinymce.js', array('inline' => false));
+		}
 	}
 }
